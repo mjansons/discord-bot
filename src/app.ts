@@ -1,23 +1,18 @@
-import express, { Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
+import express from "express";
+import helmet from "helmet";
+import messages from "./modules/messages/messages.controller";
+import templates from "./modules/templates/templates.controller";
+import sprints from "./modules/sprints/sprints.controller";
+import { type Database } from "./database";
 
-const app = express();
+export default function createApp(db: Database) {
+    const app = express();
+    app.use(helmet());
+    app.use(express.json());
 
-app.use(helmet());
+    app.use("/messages", messages(db));
+    app.use("/templates", templates(db));
+    app.use("/sprints", sprints(db));
 
-app.use(express.json());
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log('Function was called');
-    next();
-});
-
-app.route('/')
-    .get((req: Request, res: Response) => {
-        res.send('you made a get request');
-    })
-    .post((req: Request, res: Response) => {
-        res.send('you made a post request');
-    });
-
-export default app;
+    return app;
+}

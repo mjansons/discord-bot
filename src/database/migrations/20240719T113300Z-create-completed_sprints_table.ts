@@ -6,10 +6,10 @@ export async function up(db: Kysely<SqliteDatabase>) {
         .addColumn("id", "integer", (column) =>
             column.primaryKey().autoIncrement().notNull()
         )
-        .addColumn("user_id", "text", (column) =>
+        .addColumn("user_id", "integer", (column) =>
             column.references("users.id").onDelete("cascade").notNull()
         )
-        .addColumn("sprint_id", "text", (column) =>
+        .addColumn("sprint_id", "integer", (column) =>
             column.references("sprints.id").onDelete("cascade").notNull()
         )
         .execute();

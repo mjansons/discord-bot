@@ -1,10 +1,6 @@
 interface GiphyResponse {
     data: {
-        images: {
-            downsized: {
-                url: string;
-            };
-        };
+        embed_url: string
     };
 }
 
@@ -17,7 +13,7 @@ export default async function getRandomGif(api_key: string, tag: string) {
             throw new Error("Network response was not ok");
         }
         const parsedResponse = (await response.json()) as GiphyResponse;
-        return parsedResponse.data.images.downsized.url;
+        return parsedResponse.data.embed_url;
     } catch (error) {
         console.error(
             "There has been a problem with your fetch operation:",

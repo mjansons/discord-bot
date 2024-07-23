@@ -7,21 +7,21 @@ export type Generated<T> =
 
 export interface CompletedSprints {
   id: Generated<number>;
-  sprintId: string;
-  userId: string;
+  sprint_id: number;
+  user_id: number;
 }
 
 export interface SentMessages {
-  createdAt: Generated<string>;
+  created_at: Generated<string>;
   id: Generated<number>;
-  sprintId: string;
-  templateId: string;
-  userId: string;
+  sprint_id: number;
+  template_id: number;
+  user_id: number;
 }
 
 export interface Sprints {
   id: Generated<number>;
-  sprintCode: string;
+  sprint_code: string;
   title: string;
 }
 
@@ -36,8 +36,8 @@ export interface Users {
 }
 
 export interface DB {
-  completedSprints: CompletedSprints;
-  sentMessages: SentMessages;
+  completed_sprints: CompletedSprints;
+  sent_messages: SentMessages;
   sprints: Sprints;
   templates: Templates;
   users: Users;

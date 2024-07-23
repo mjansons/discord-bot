@@ -6,13 +6,13 @@ export async function up(db: Kysely<SqliteDatabase>) {
         .addColumn("id", "integer", (column) =>
             column.primaryKey().autoIncrement().notNull()
         )
-        .addColumn("user_id", "text", (column) =>
+        .addColumn("user_id", "integer", (column) =>
             column.references("users.id").onDelete("cascade").notNull()
         )
-        .addColumn("template_id", "text", (column) =>
+        .addColumn("template_id", "integer", (column) =>
             column.references("templates.id").onDelete("cascade").notNull()
         )
-        .addColumn("sprint_id", "text", (column) =>
+        .addColumn("sprint_id", "integer", (column) =>
             column.references("sprints.id").onDelete("cascade").notNull()
         )
         .addColumn("created_at", "datetime", (column) =>

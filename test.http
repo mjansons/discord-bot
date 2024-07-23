@@ -28,25 +28,25 @@ Content-Type: application/json
 
 {
   "sprintCode": "WD-2.7",
-  "title": "New Sprint"
+  "title": "A New Sprint"
 }
 
 ###
-patch http://localhost:3000/sprints?sprint=WD-2.5
+patch http://localhost:3000/sprints?sprint=WD-2.7
 // edits an existing sprint title
 Content-Type: application/json
 
 {
-  "title": "New Balance"
+  "newTitle": "A New Sprint Title"
 }
 
 ###
-patch http://localhost:3000/sprints?sprint=WD-3.1
+patch http://localhost:3000/sprints?sprint=WD-2.77
 // edits an existing sprintCode
 Content-Type: application/json
 
 {
-  "newSprintCode": "WD-2.5"
+  "newSprintCode": "WD-2.7"
 }
 
 ###
@@ -65,16 +65,16 @@ post http://localhost:3000/templates
 Content-Type: application/json
 
 {
-  "message": "Yay2!"
+  "message": "Yay3!"
 }
 
 ###
-patch http://localhost:3000/templates?id=15
+patch http://localhost:3000/templates?id=17
 // edits an existing sprint title
 Content-Type: application/json
 
 {
-  "newMessage": "Wow!"
+  "newMessage": "Wowza!"
 }
 
 ###

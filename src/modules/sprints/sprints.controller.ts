@@ -23,7 +23,7 @@ export default (db: Database) => {
 
         .patch(async (req, res) => {
             const { sprint } = req.query;
-            const { newSprintCode, title } = req.body;
+            const { newSprintCode, newTitle } = req.body;
 
             if (newSprintCode) {
                 const result = await repository.updateSprintCode(
@@ -33,10 +33,10 @@ export default (db: Database) => {
                 res.send(result);
             }
 
-            if (title) {
+            if (newTitle) {
                 const result = await repository.updateSprintTitle(
                     sprint as string,
-                    title
+                    newTitle
                 );
                 res.send(result);
             }

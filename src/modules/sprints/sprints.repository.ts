@@ -46,7 +46,7 @@ export default (db: Database) => ({
         sprintCode: string,
         newSprintTitle: string
     ): Promise<SprintAllFields | undefined> {
-        const arst = db.updateTable("sprints")
+        db.updateTable("sprints")
             .set({ title: newSprintTitle })
             .where("sprint_code", "=", sprintCode)
             .execute();

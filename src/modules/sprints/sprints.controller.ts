@@ -1,5 +1,9 @@
 import { Router } from "express";
 import { Database } from "@/database";
+import { StatusCodes } from "http-status-codes";
+import BadRequest from "@/middleware/errors/BadRequest";
+import NotFound from "@/middleware/errors/NotFound";
+import { jsonRoute, unsupportedRoute } from "@/middleware/middleware";
 import getRepositoryFunctions from "./sprints.repository";
 
 export default (db: Database) => {
@@ -9,44 +13,75 @@ export default (db: Database) => {
 
     router
         .route("/")
+        .get(jsonRoute(repository.getAllSprints))
+        .post(
+            jsonRoute(async (req) => {
+                const { sprintCode, title } = req.body;
 
-        .get(async (req, res) => {
-            const result = await repository.getAllSprints();
-            res.send(result);
-        })
+                // unique constraint validation
+                if (await repository.getSprintBySprintCode(sprintCode)) {
+                    throw new BadRequest("Please provide a unique Sprint Code");
+                }
+                if (await repository.getSprintBySprintTitle(title)) {
+                    throw new BadRequest(
+                        "Please provide a unique Sprint Title"
+                    );
+                }
 
-        .post(async (req, res) => {
-            const { sprintCode, title } = req.body;
-            const result = await repository.addNewSprint(sprintCode, title);
-            res.status(201).send(result);
-        })
+                return repository.addNewSprint(sprintCode, title);
+            }, StatusCodes.CREATED)
+        )
 
-        .patch(async (req, res) => {
-            const { sprint } = req.query;
-            const { newSprintCode, newTitle } = req.body;
+        .patch(
+            jsonRoute(async (req) => {
+                const { sprint } = req.query;
+                const { newSprintCode, newTitle } = req.body;
 
-            if (newSprintCode) {
-                const result = await repository.updateSprintCode(
-                    sprint as string,
-                    newSprintCode
-                );
-                res.send(result);
-            }
+                if (
+                    !(await repository.getSprintBySprintCode(sprint as string))
+                ) {
+                    throw new NotFound("Sprint Not Found");
+                }
 
-            if (newTitle) {
-                const result = await repository.updateSprintTitle(
-                    sprint as string,
-                    newTitle
-                );
-                res.send(result);
-            }
-        })
+                if (newSprintCode) {
+                    if (await repository.getSprintBySprintCode(newSprintCode)) {
+                        throw new BadRequest(
+                            "Please provide a unique New Sprint Code"
+                        );
+                    }
+                    return repository.updateSprintCode(
+                        sprint as string,
+                        newSprintCode
+                    );
+                }
+                if (newTitle) {
+                    if (await repository.getSprintBySprintTitle(newTitle)) {
+                        throw new BadRequest(
+                            "Please provide a unique New Sprint Title"
+                        );
+                    }
+                    return repository.updateSprintTitle(
+                        sprint as string,
+                        newTitle
+                    );
+                }
+            })
+        )
 
-        .delete(async (req, res) => {
-            const { sprint } = req.query;
-            const result = await repository.deleteSprint(sprint as string);
-            res.send(result);
-        });
+        .delete(
+            jsonRoute(async (req) => {
+                const { sprint } = req.query;
+
+                if (
+                    !(await repository.getSprintBySprintCode(sprint as string))
+                ) {
+                    throw new NotFound("Sprint Not Found");
+                }
+
+                return repository.deleteSprint(sprint as string);
+            })
+        )
+        .put(unsupportedRoute);
 
     return router;
 };

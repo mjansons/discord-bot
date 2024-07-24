@@ -10,6 +10,25 @@ export default (db: Database) => ({
         return db.selectFrom("sprints").selectAll().execute();
     },
 
+    getSprintBySprintCode(
+        sprintCode: string
+    ): Promise<SprintAllFields | undefined> {
+        return db
+            .selectFrom("sprints")
+            .selectAll()
+            .where("sprint_code", "=", sprintCode)
+            .executeTakeFirst();
+    },
+    getSprintBySprintTitle(
+        title: string
+    ): Promise<SprintAllFields | undefined> {
+        return db
+            .selectFrom("sprints")
+            .selectAll()
+            .where("title", "=", title)
+            .executeTakeFirst();
+    },
+
     addNewSprint(
         sprintCode: string,
         title: string
@@ -67,7 +86,10 @@ export default (db: Database) => ({
                 .executeTakeFirst();
 
             if (deletable) {
-                await trx.deleteFrom("sprints").where("sprint_code", "=", sprintCode).execute();
+                await trx
+                    .deleteFrom("sprints")
+                    .where("sprint_code", "=", sprintCode)
+                    .execute();
                 return deletable;
             }
             return undefined;

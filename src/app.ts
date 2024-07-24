@@ -3,6 +3,7 @@ import helmet from "helmet";
 import messages from "./modules/messages/messages.controller";
 import templates from "./modules/templates/templates.controller";
 import sprints from "./modules/sprints/sprints.controller";
+import jsonErrorHandler from './middleware/errors'
 import { type Database } from "./database";
 
 export default function createApp(db: Database) {
@@ -13,6 +14,8 @@ export default function createApp(db: Database) {
     app.use("/messages", messages(db));
     app.use("/templates", templates(db));
     app.use("/sprints", sprints(db));
+
+    app.use(jsonErrorHandler)
 
     return app;
 }

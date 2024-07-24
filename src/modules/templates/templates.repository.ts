@@ -10,6 +10,24 @@ export default (db: Database) => ({
         return db.selectFrom("templates").selectAll().execute();
     },
 
+    getTemplateById(id: number): Promise<TemplateAllFields | undefined> {
+        return db
+            .selectFrom("templates")
+            .selectAll()
+            .where("id", "=", id)
+            .executeTakeFirst();
+    },
+
+    getTemplateByMessage(
+        message: string
+    ): Promise<TemplateAllFields | undefined> {
+        return db
+            .selectFrom("templates")
+            .selectAll()
+            .where("message", "=", message)
+            .executeTakeFirst();
+    },
+
     addNewTemplate(message: string): Promise<TemplateAllFields | undefined> {
         db.insertInto("templates").values({ message: message }).execute();
 
@@ -25,7 +43,8 @@ export default (db: Database) => ({
         message: string
     ): Promise<TemplateAllFields | undefined> {
         return db.transaction().execute(async (trx) => {
-            await trx.updateTable("templates")
+            await trx
+                .updateTable("templates")
                 .set({ message: message })
                 .where("id", "=", id)
                 .execute();

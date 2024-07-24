@@ -5,7 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import BadRequest from "@/middleware/errors/BadRequest";
 import NotFound from "@/middleware/errors/NotFound";
 
-import getRepositoryFunctions from "./templates.repository";
+import getRepositoryFunctions from "./users.repository";
 
 export default (db: Database) => {
     const router = Router();
@@ -17,13 +17,13 @@ export default (db: Database) => {
         .get(jsonRoute(repository.getAllTemplates))
         .post(
             jsonRoute(async (req) => {
-                const { message } = req.body;
+                const { username } = req.body;
 
-                if (await repository.getTemplateByMessage(message as string)) {
-                    throw new BadRequest("Please provide a unique message!");
+                if (await repository.getUserByUsername(username as string)) {
+                    throw new BadRequest("Please provide a unique username!");
                 }
 
-                return repository.addNewTemplate(message);
+                return repository.addNewUser(username);
             }, StatusCodes.CREATED)
         )
 
@@ -31,32 +31,32 @@ export default (db: Database) => {
             jsonRoute(async (req) => {
                 const id = parseInt(req.query.id as string, 10);
 
-                if (!(await repository.getTemplateById(id as number))) {
-                    throw new NotFound("Template with such ID Not Found!");
+                if (!(await repository.getUserById(id as number))) {
+                    throw new NotFound("User with such ID Not Found!");
                 }
 
-                const { newMessage } = req.body;
+                const { newUsername } = req.body;
 
                 if (
-                    await repository.getTemplateByMessage(newMessage as string)
+                    await repository.getUserByUsername(newUsername as string)
                 ) {
                     throw new BadRequest(
-                        "Please provide a unique new message!"
+                        "Please provide a unique new username!"
                     );
                 }
 
-                return repository.updateTemplateMessage(id, newMessage);
+                return repository.updateUsername(id, newUsername);
             })
         )
         .delete(
             jsonRoute(async (req) => {
                 const id = parseInt(req.query.id as string, 10);
 
-                if (!(await repository.getTemplateById(id as number))) {
-                    throw new NotFound("Template with such ID Not Found!");
+                if (!(await repository.getUserById(id as number))) {
+                    throw new NotFound("User with such ID Not Found!");
                 }
 
-                return repository.deleteTemplate(id);
+                return repository.deleteUser(id);
             })
         )
         .put(unsupportedRoute);

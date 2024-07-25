@@ -6,7 +6,7 @@ type TemplateFieldsOptional = Updateable<Templates>;
 type TemplateAllFields = Selectable<Templates>;
 
 export default (db: Database) => ({
-    getAllTemplates(): Promise<TemplateAllFields[] | undefined> {
+    getAllTemplates(): Promise<TemplateAllFields[]> {
         return db.selectFrom("templates").selectAll().execute();
     },
 

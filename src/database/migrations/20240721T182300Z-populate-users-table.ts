@@ -1,7 +1,7 @@
 import { DB } from "../types";
 import { Kysely } from "kysely";
 
-const discordNames = ["@mjansons", "@random", "@user"];
+const discordNames = ["mjansons", "turing-bot"];
 
 export async function up(db: Kysely<DB>) {
     await db.transaction().execute(async (trx) => {

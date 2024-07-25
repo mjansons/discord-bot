@@ -1,23 +1,20 @@
 interface GiphyResponse {
     data: {
-        embed_url: string
+        images: {
+            original: {
+                url: string;
+            };
+        };
     };
 }
 
 export default async function getRandomGif(api_key: string, tag: string) {
-    try {
-        const response = await fetch(
-            `https://api.giphy.com/v1/gifs/random?api_key=${api_key}&tag=${tag}&rating=pg-13`
-        );
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
-        }
-        const parsedResponse = (await response.json()) as GiphyResponse;
-        return parsedResponse.data.embed_url;
-    } catch (error) {
-        console.error(
-            "There has been a problem with your fetch operation:",
-            error
-        );
+    const response = await fetch(
+        `https://api.giphy.com/v1/gifs/random?api_key=${api_key}&tag=${tag}&rating=pg-13`
+    );
+    if (!response.ok) {
+        throw new Error("Couldn't fetch a GIF!");
     }
+    const parsedResponse = (await response.json()) as GiphyResponse;
+    return parsedResponse.data.images.original.url;
 }

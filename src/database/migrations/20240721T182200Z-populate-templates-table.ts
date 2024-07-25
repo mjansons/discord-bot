@@ -6,7 +6,6 @@ const phrases = [
     "Always knew you had it in you! Great job!",
     "This calls for celebrating! Congratulations!",
     "Warmest applause on your achievement. You rock!",
-    "Nice work! Everything is possible when you just believe in yourself!",
     "Applause, applause, applause! Congrats on your hard-earned success!",
     "You did it! We are so proud of you!",
     "You have worked so hard for this. Congrats!",

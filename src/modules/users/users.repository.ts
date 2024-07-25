@@ -6,17 +6,17 @@ type UserFieldsOptional = Updateable<Users>;
 type UserAllFields = Selectable<Users>;
 
 export default (db: Database) => ({
-    getAllTemplates(): Promise<UserAllFields[] | undefined> {
-        return db.selectFrom("users").selectAll().execute();
-    },
+    // getAllUsers(): Promise<UserAllFields[] | undefined> {
+    //     return db.selectFrom("users").selectAll().execute();
+    // },
 
-    getUserById(id: number): Promise<UserAllFields | undefined> {
-        return db
-            .selectFrom("users")
-            .selectAll()
-            .where("id", "=", id)
-            .executeTakeFirst();
-    },
+    // getUserById(id: number): Promise<UserAllFields | undefined> {
+    //     return db
+    //         .selectFrom("users")
+    //         .selectAll()
+    //         .where("id", "=", id)
+    //         .executeTakeFirst();
+    // },
 
     getUserByUsername(
         username: string
@@ -29,50 +29,48 @@ export default (db: Database) => ({
     },
 
     addNewUser(username: string): Promise<UserAllFields | undefined> {
-        db.insertInto("users").values({ username: username }).execute();
-
         return db
-            .selectFrom("users")
-            .selectAll()
-            .where("username", "=", username)
+            .insertInto("users")
+            .values({ username: username })
+            .returning(["id", "username"])
             .executeTakeFirst();
     },
 
-    updateUsername(
-        id: number,
-        username: string
-    ): Promise<UserAllFields | undefined> {
-        return db.transaction().execute(async (trx) => {
-            await trx
-                .updateTable("users")
-                .set({ username: username })
-                .where("id", "=", id)
-                .execute();
+    // updateUsername(
+    //     id: number,
+    //     username: string
+    // ): Promise<UserAllFields | undefined> {
+    //     return db.transaction().execute(async (trx) => {
+    //         await trx
+    //             .updateTable("users")
+    //             .set({ username: username })
+    //             .where("id", "=", id)
+    //             .execute();
 
-            return await trx
-                .selectFrom("users")
-                .selectAll()
-                .where("id", "=", id)
-                .executeTakeFirst();
-        });
-    },
+    //         return await trx
+    //             .selectFrom("users")
+    //             .selectAll()
+    //             .where("id", "=", id)
+    //             .executeTakeFirst();
+    //     });
+    // },
 
-    deleteUser(id: number): Promise<UserAllFields | undefined> {
-        return db.transaction().execute(async (trx) => {
-            const deletable = await trx
-                .selectFrom("users")
-                .selectAll()
-                .where("id", "=", id)
-                .executeTakeFirst();
+    // deleteUser(id: number): Promise<UserAllFields | undefined> {
+    //     return db.transaction().execute(async (trx) => {
+    //         const deletable = await trx
+    //             .selectFrom("users")
+    //             .selectAll()
+    //             .where("id", "=", id)
+    //             .executeTakeFirst();
 
-            if (deletable) {
-                await trx
-                    .deleteFrom("users")
-                    .where("id", "=", id)
-                    .execute();
-                return deletable;
-            }
-            return undefined;
-        });
-    },
+    //         if (deletable) {
+    //             await trx
+    //                 .deleteFrom("users")
+    //                 .where("id", "=", id)
+    //                 .execute();
+    //             return deletable;
+    //         }
+    //         return undefined;
+    //     });
+    // },
 });

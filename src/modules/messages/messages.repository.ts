@@ -8,10 +8,10 @@ type TemplateAllFields = Selectable<Templates>;
 export default (db: Database) => ({
     getAllSentMessages(): Promise<TemplateAllFields[] | undefined> {
         return db
-        .selectFrom("sent_messages")
-        .innerJoin("templates", "templates.id", "template_id")
-        .select(["templates.id", "templates.message"])
-        .execute();
+            .selectFrom("sent_messages")
+            .innerJoin("templates", "templates.id", "template_id")
+            .select(["templates.id", "templates.message"])
+            .execute();
     },
     getUserMessages(
         username: string
@@ -35,8 +35,22 @@ export default (db: Database) => ({
             .select(["templates.id", "templates.message"])
             .execute();
     },
-    sendCongratulations(sprintCode: string, username: string) {
-        // TO DO - send a congratulatory message to a user on Discord
-        return `congrats sent using ${sprintCode} and ${username} stuff`;
+
+    addSentMessage(
+        sprint_id: number,
+        template_id: number,
+        user_id: number
+    ): Promise<
+        { sprint_id: number; template_id: number; user_id: number } | undefined
+    > {
+        return db
+            .insertInto("sent_messages")
+            .values({
+                sprint_id: sprint_id,
+                template_id: template_id,
+                user_id: user_id,
+            })
+            .returning(["sprint_id", "template_id", "user_id"])
+            .executeTakeFirst();
     },
 });

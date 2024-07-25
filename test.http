@@ -13,8 +13,8 @@ post http://localhost:3000/messages
 Content-Type: application/json
 
 {
-  "username": "johdoe",
-  "sprintCode": "WD-1.1"
+  "username": "mjansons",
+  "sprintCode": "WD-1.2"
 }
 
 ###
@@ -80,4 +80,3 @@ Content-Type: application/json
 ###
 delete http://localhost:3000/templates?id=16
 // deletes a sprint
-

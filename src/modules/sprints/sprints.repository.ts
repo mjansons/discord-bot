@@ -95,4 +95,29 @@ export default (db: Database) => ({
             return undefined;
         });
     },
+
+    getCompletedSprint(
+        sprintCode: string,
+        username: string
+    ): Promise<SprintAllFields | undefined> {
+        return db
+            .selectFrom("completed_sprints")
+            .innerJoin("sprints", "completed_sprints.sprint_id", "sprints.id")
+            .innerJoin("users", "completed_sprints.user_id", "users.id")
+            .select(["sprints.id", "sprints.sprint_code", "sprints.title"])
+            .where("sprint_code", "=", sprintCode)
+            .where("username", "=", username)
+            .executeTakeFirst();
+    },
+
+    updateCompletedSprint(
+        sprint_id: number,
+        user_id: number
+    ): Promise<{ id: number; sprint_id: number; user_id: number } | undefined> {
+        return db
+            .insertInto("completed_sprints")
+            .values({ sprint_id: sprint_id, user_id: user_id })
+            .returning(["id", "sprint_id", "user_id"])
+            .executeTakeFirst();
+    },
 });

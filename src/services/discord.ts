@@ -1,29 +1,66 @@
+import {
+    Client,
+    GatewayIntentBits,
+    TextChannel,
+    GuildMember,
+} from "discord.js";
 import "dotenv/config";
-import { Client, GatewayIntentBits, TextChannel } from "discord.js";
 
 const DISCORD_BOT_ID: string = process.env.DISCORD_BOT_ID as string;
-const DISCORD_CHANNEL_ID: string = process.env.DISCORD_CHANNEL_ID as string;
+const DISCORD_SERVER_ID: string = process.env.DISCORD_SERVER_ID as string;
 
 const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ],
 });
 
-export function sendMessage(
-    message = "Hello, this is a message from your bot!",
-    channel = DISCORD_CHANNEL_ID
-) {
-    client.on("ready", async () => {
-        console.log("Bot is ready!");
-        try {
-            const channel = (await client.channels.fetch(
-                DISCORD_CHANNEL_ID
-            )) as TextChannel;
-            channel.send(message);
-            console.log("Message sent!");
-        } catch (error) {
-            console.error("Error sending message:", error);
-        }
-    });
+async function ensureClientReady(botId: string) {
+    if (!client.isReady()) {
+        return new Promise<void>((resolve, reject) => {
+            client.once("ready", () => {
+                console.log(`Logged in as ${client.user?.tag}!`);
+                resolve();
+            });
+
+            client.login(botId).catch(reject);
+        });
+    }
 }
 
-client.login(DISCORD_BOT_ID);
+export async function sendMessage(
+    message: string,
+    url: string,
+    channelId: string
+) {
+    try {
+        await ensureClientReady(DISCORD_BOT_ID);
+        const channel = await client.channels.fetch(channelId);
+        const textChannel = channel as TextChannel;
+        textChannel.send({
+            content: message,
+            files: [url],
+        });
+        console.log("Message sent!");
+    } catch (error) {
+        throw new Error(`Failed to send Discord message. Error: ${error}`);
+    }
+}
+
+export async function getUserFromDiscord(
+    username: string
+): Promise<GuildMember | undefined> {
+    try {
+        await ensureClientReady(DISCORD_BOT_ID);
+        const guild = await client.guilds.fetch(DISCORD_SERVER_ID);
+        const users = await guild.members.fetch();
+
+        const user = users.find((member) => member.user.username === username);
+        return user;
+    } catch (error) {
+        throw new Error(`Discord user search failed. Error: ${error}`);
+    }
+}

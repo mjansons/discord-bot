@@ -5,6 +5,7 @@ import BadRequest from "@/middleware/errors/BadRequest";
 import NotFound from "@/middleware/errors/NotFound";
 import { jsonRoute, unsupportedRoute } from "@/middleware/middleware";
 import getRepositoryFunctions from "./sprints.repository";
+import { parseSprintCode, parseTitle } from "./sprints.schema"
 
 export default (db: Database) => {
     const router = Router();
@@ -17,6 +18,9 @@ export default (db: Database) => {
         .post(
             jsonRoute(async (req) => {
                 const { sprintCode, title } = req.body;
+
+                parseSprintCode(sprintCode)
+                parseTitle(title)
 
                 // unique constraint validation
                 if (await repository.getSprintBySprintCode(sprintCode)) {
@@ -36,6 +40,10 @@ export default (db: Database) => {
             jsonRoute(async (req) => {
                 const { sprint } = req.query;
                 const { newSprintCode, newTitle } = req.body;
+
+                parseSprintCode(sprint)
+                parseSprintCode(newSprintCode)
+                parseTitle(newTitle)
 
                 if (
                     !(await repository.getSprintBySprintCode(sprint as string))
@@ -71,6 +79,8 @@ export default (db: Database) => {
         .delete(
             jsonRoute(async (req) => {
                 const { sprint } = req.query;
+
+                parseSprintCode(sprint)
 
                 if (
                     !(await repository.getSprintBySprintCode(sprint as string))

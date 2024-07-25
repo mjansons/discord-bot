@@ -3,7 +3,7 @@ import { Database } from "@/database";
 import { jsonRoute, unsupportedRoute } from "@/middleware/middleware";
 import { sendMessage, getUserFromDiscord } from "@/services/discord";
 import { StatusCodes } from "http-status-codes";
-import "dotenv/config";
+import { parseSprintCode, parseUsername } from "./messages.schema";
 import getRandomGif from "@/services/giphy";
 import getRepositoryFunctions from "./messages.repository";
 import getSprintRepositoryFunctions from "../sprints/sprints.repository";
@@ -11,6 +11,7 @@ import getTempleatesRepositoryFunctions from "../templates/templates.repository"
 import getUserRepositoryFunctions from "../users/users.repository";
 import NotFound from "@/middleware/errors/NotFound";
 import BadRequest from "@/middleware/errors/BadRequest";
+import "dotenv/config";
 
 export default (db: Database) => {
     const router = Router();
@@ -26,6 +27,7 @@ export default (db: Database) => {
                 const { sprint, username } = req.query;
 
                 if (sprint) {
+                    parseSprintCode(sprint);
                     // gets all sent messages for a specific sprint
                     if (
                         !(await sprintRepository.getSprintBySprintCode(
@@ -38,6 +40,7 @@ export default (db: Database) => {
                     );
                 }
                 if (username) {
+                    parseUsername(username);
                     // gets all sent messages for a specific user
                     if (
                         !(await userRepository.getUserByUsername(
@@ -57,6 +60,8 @@ export default (db: Database) => {
                 if (!sprintCode) throw new NotFound("Sprint code is required");
                 if (!username) throw new NotFound("Username is required");
 
+                parseSprintCode(sprintCode);
+                parseUsername(username);
                 // such sprint exists?
                 const sprintObject =
                     await sprintRepository.getSprintBySprintCode(
@@ -104,10 +109,15 @@ export default (db: Database) => {
                 const templateObject = allTemplates[randomIndex];
 
                 // update completed sprints in db
-                sprintRepository.updateCompletedSprint(
-                    sprintObject.id,
-                    userObject!.id
-                );
+
+                if (
+                    !sprintRepository.updateCompletedSprint(
+                        sprintObject.id,
+                        userObject!.id
+                    )
+                ) {
+                    throw new Error("Sent message not saved in history");
+                }
 
                 // fetch a gif
                 const gifURL = await getRandomGif(
@@ -124,17 +134,16 @@ export default (db: Database) => {
                 );
 
                 // update sent_messages in db
-                repository.addSentMessage(
-                    sprintObject.id,
-                    templateObject.id,
-                    userObject!.id
-                );
-
-                return repository.addSentMessage(
-                    sprintObject.id,
-                    templateObject.id,
-                    userObject!.id
-                );
+                if (
+                    !(await repository.addSentMessage(
+                        sprintObject.id,
+                        templateObject.id,
+                        userObject!.id
+                    ))
+                ) {
+                    throw new Error("Sent message not saved in history");
+                }
+                return { message: "Message sent successfully" };
             }, StatusCodes.CREATED)
         )
         .delete(unsupportedRoute)

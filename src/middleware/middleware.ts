@@ -1,18 +1,18 @@
 import {
-    type Response,
-    type Request,
-    type NextFunction,
-    type RequestHandler,
-} from 'express'
-import { StatusCodes } from 'http-status-codes'
-import MethodNotAllowed from './errors/MethodNotAllowed'
-import NotFound from "@/middleware/errors/NotFound";
+  type Response,
+  type Request,
+  type NextFunction,
+  type RequestHandler,
+} from 'express';
+import { StatusCodes } from 'http-status-codes';
+import MethodNotAllowed from './errors/MethodNotAllowed';
+import NotFound from '@/middleware/errors/NotFound';
 
 type JsonHandler<T> = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => Promise<T>
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<T>;
 
 /**
  * Wraps a request handler that returns an object and
@@ -21,28 +21,28 @@ type JsonHandler<T> = (
  * @returns Request handler that sends the result as JSON.
  */
 export function jsonRoute<T>(
-    handler: JsonHandler<T>,
-    statusCode = StatusCodes.OK
+  handler: JsonHandler<T>,
+  statusCode = StatusCodes.OK
 ): RequestHandler {
-    return async (req, res, next) => {
-        try {
-            const result = await handler(req, res, next)
+  return async (req, res, next) => {
+    try {
+      const result = await handler(req, res, next);
 
-            if (Array.isArray(result) && result.length === 0) {
-                throw new NotFound("Resource Not Found");
-            }
-            res.status(statusCode)
-            res.json(result as T)
-        } catch (error) {
-            next(error)
-        }
+      if (Array.isArray(result) && result.length === 0) {
+        throw new NotFound('Resource Not Found');
+      }
+      res.status(statusCode);
+      res.json(result as T);
+    } catch (error) {
+      next(error);
     }
+  };
 }
 
 export function unsupportedRoute(
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) {
-    next(new MethodNotAllowed())
+  next(new MethodNotAllowed());
 }

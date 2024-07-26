@@ -1,78 +1,56 @@
-import { type Database, Templates } from "@/database";
-import type { Insertable, Selectable, Updateable } from "kysely";
+import { type Database, Templates } from '@/database';
+import type { Selectable } from 'kysely';
 
-type TemplateIdOptional = Insertable<Templates>;
-type TemplateFieldsOptional = Updateable<Templates>;
 type TemplateAllFields = Selectable<Templates>;
 
 export default (db: Database) => ({
-    getAllTemplates(): Promise<TemplateAllFields[]> {
-        return db.selectFrom("templates").selectAll().execute();
-    },
+  getAllTemplates(): Promise<TemplateAllFields[]> {
+    return db.selectFrom('templates').selectAll().execute();
+  },
 
-    getTemplateById(id: number): Promise<TemplateAllFields | undefined> {
-        return db
-            .selectFrom("templates")
-            .selectAll()
-            .where("id", "=", id)
-            .executeTakeFirst();
-    },
+  getTemplateById(id: number): Promise<TemplateAllFields | undefined> {
+    return db
+      .selectFrom('templates')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirst();
+  },
 
-    getTemplateByMessage(
-        message: string
-    ): Promise<TemplateAllFields | undefined> {
-        return db
-            .selectFrom("templates")
-            .selectAll()
-            .where("message", "=", message)
-            .executeTakeFirst();
-    },
+  getTemplateByMessage(
+    message: string
+  ): Promise<TemplateAllFields | undefined> {
+    return db
+      .selectFrom('templates')
+      .selectAll()
+      .where('message', '=', message)
+      .executeTakeFirst();
+  },
 
-    addNewTemplate(message: string): Promise<TemplateAllFields | undefined> {
-        db.insertInto("templates").values({ message: message }).execute();
+  addNewTemplate(message: string): Promise<TemplateAllFields | undefined> {
+    return db
+      .insertInto('templates')
+      .values({ message: message })
+      .returningAll()
+      .executeTakeFirst();
+  },
 
-        return db
-            .selectFrom("templates")
-            .selectAll()
-            .where("message", "=", message)
-            .executeTakeFirst();
-    },
+  updateTemplateMessage(
+    id: number,
+    newMessage: string
+  ): Promise<TemplateAllFields | undefined> {
+    return db
+      .updateTable('templates')
+      .set({ message: newMessage })
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+  },
 
-    updateTemplateMessage(
-        id: number,
-        message: string
-    ): Promise<TemplateAllFields | undefined> {
-        return db.transaction().execute(async (trx) => {
-            await trx
-                .updateTable("templates")
-                .set({ message: message })
-                .where("id", "=", id)
-                .execute();
-
-            return await trx
-                .selectFrom("templates")
-                .selectAll()
-                .where("id", "=", id)
-                .executeTakeFirst();
-        });
-    },
-
-    deleteTemplate(id: number): Promise<TemplateAllFields | undefined> {
-        return db.transaction().execute(async (trx) => {
-            const deletable = await trx
-                .selectFrom("templates")
-                .selectAll()
-                .where("id", "=", id)
-                .executeTakeFirst();
-
-            if (deletable) {
-                await trx
-                    .deleteFrom("templates")
-                    .where("id", "=", id)
-                    .execute();
-                return deletable;
-            }
-            return undefined;
-        });
-    },
+  deleteTemplate(id: number): Promise<TemplateAllFields | undefined> {
+    return db
+      .deleteFrom('templates')
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+  },
 });

@@ -13,7 +13,7 @@
 
     "strict": true,
     "sourceMap": true,
-
+    "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
       "@tests/*": ["./tests/*"]

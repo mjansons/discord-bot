@@ -1,0 +1,103 @@
+post http://localhost:3000/sprints
+// adds a new sprint
+Content-Type: application/json
+
+{
+  "sprintCode": "WD-1.1",
+  "title": "Sprint One"
+}
+
+###
+post http://localhost:3000/sprints
+// adds a new sprint
+Content-Type: application/json
+
+{
+  "sprintCode": "WD-1.2",
+  "title": "Sprint Two"
+}
+
+
+###
+post http://localhost:3000/templates
+// adds new template
+Content-Type: application/json
+
+{
+  "message": "Wow, we always new you had it in you!"
+}
+
+###
+post http://localhost:3000/templates
+// adds new template
+Content-Type: application/json
+
+{
+  "message": "All it takes is a bit of persistance! Great work!"
+}
+
+###
+post http://localhost:3000/messages
+// sends a message in discord for a specific user
+Content-Type: application/json
+
+{
+  "username": "mjansons",
+  "sprintCode": "WD-1.1"
+}
+
+###
+get http://localhost:3000/messages
+// gets all sent messages
+
+###
+get http://localhost:3000/messages?sprint=WD-1.2
+// gets all sent messages for a specific sprint
+
+###
+get http://localhost:3000/messages?username=mjansons
+// gets all sent messages for a specific user
+
+###
+get http://localhost:3000/sprints
+// gets all sprints
+
+###
+patch http://localhost:3000/sprints?sprint=WD-1.1
+// edits an existing sprint title
+Content-Type: application/json
+
+{
+  "newTitle": "Loops"
+}
+
+###
+patch http://localhost:3000/sprints?sprint=WD-1.2
+// edits an existing sprintCode
+Content-Type: application/json
+
+{
+  "newSprintCode": "WD-2.2"
+}
+
+###
+delete http://localhost:3000/sprints?sprint=WD-2.2
+// deletes a sprint
+
+
+###
+get http://localhost:3000/templates
+// gets all templates
+
+###
+patch http://localhost:3000/templates?id=2
+// edits an existing template title
+Content-Type: application/json
+
+{
+  "newMessage": "Wowza! Amazing Job!"
+}
+
+###
+delete http://localhost:3000/templates?id=2
+// deletes a template

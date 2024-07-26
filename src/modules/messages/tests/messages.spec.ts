@@ -74,6 +74,12 @@ describe('GET /messages', () => {
       },
     ]);
   });
+
+  it('get 404 Not Found when there are no messages', async () => {
+    await db.deleteFrom('sent_messages').execute();
+    await supertest(app).get('/messages').expect(404);
+  });
+
 });
 
 describe('GET /messages?username=mjansons', () => {
@@ -93,6 +99,35 @@ describe('GET /messages?username=mjansons', () => {
       },
     ]);
   });
+
+  it('get a 404, when there are no messages for a specific user', async () => {
+    await db.deleteFrom('sent_messages').execute();
+    const { body } = await supertest(app)
+      .get('/messages?username=mjansons')
+      .expect(404);
+
+      expect(body).toEqual({
+        "error": {
+          "message": "Resource Not Found",
+          "status": 404
+        }
+      })
+  });
+
+  it('get a 404, when there are no messages for a specific user', async () => {
+    await db.deleteFrom('sent_messages').execute();
+    const { body } = await supertest(app)
+      .get('/messages?username=random')
+      .expect(404);
+
+      expect(body).toEqual({
+        "error": {
+          "message": "User Not Found",
+          "status": 404
+        }
+      });
+  });
+
 });
 
 describe('GET /messages?sprint=WD-1.1', () => {
@@ -108,6 +143,8 @@ describe('GET /messages?sprint=WD-1.1', () => {
       },
     ]);
   });
+
+  
 });
 
 describe('POST', () => {

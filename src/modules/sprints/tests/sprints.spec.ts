@@ -36,6 +36,18 @@ describe('GET /sprints', () => {
       { id: 3, sprintCode: 'WD-1.3', title: 'Tests' },
     ]);
   });
+
+  it('get a 404, when there are nosprints', async () => {
+    await db.deleteFrom('sprints').execute();
+    const { body } = await supertest(app).get('/sprints').expect(404);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Resource Not Found',
+        status: 404,
+      },
+    });
+  });
 });
 
 describe('POST /sprints', () => {
@@ -57,6 +69,47 @@ describe('POST /sprints', () => {
       title: 'A New Sprint',
     });
   });
+
+  it('gets 400, when sprint already exists', async () => {
+    const payload = {
+      sprintCode: 'WD-1.1',
+      title: 'A New Sprint',
+    };
+
+    const { body } = await supertest(app)
+      .post('/sprints')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(400);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Please provide a unique Sprint Code',
+        status: 400,
+      },
+    });
+  });
+
+  it('gets 400, when sprint title already exists', async () => {
+    const payload = {
+      sprintCode: 'WD-1.4',
+      title: 'Loops',
+    };
+
+    const { body } = await supertest(app)
+      .post('/sprints')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(400);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Please provide a unique Sprint Title',
+        status: 400,
+      },
+    });
+  });
+
 });
 
 describe('PATCH /sprints?sprint=WD-1.3', () => {

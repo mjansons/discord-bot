@@ -77,9 +77,15 @@ describe('GET /messages', () => {
 
   it('get 404 Not Found when there are no messages', async () => {
     await db.deleteFrom('sent_messages').execute();
-    await supertest(app).get('/messages').expect(404);
-  });
+    const { body } = await supertest(app).get('/messages').expect(404);
 
+    expect(body).toEqual({
+      error: {
+        message: 'Resource Not Found',
+        status: 404,
+      },
+    });
+  });
 });
 
 describe('GET /messages?username=mjansons', () => {
@@ -106,28 +112,48 @@ describe('GET /messages?username=mjansons', () => {
       .get('/messages?username=mjansons')
       .expect(404);
 
-      expect(body).toEqual({
-        "error": {
-          "message": "Resource Not Found",
-          "status": 404
-        }
-      })
+    expect(body).toEqual({
+      error: {
+        message: 'Resource Not Found',
+        status: 404,
+      },
+    });
   });
 
-  it('get a 404, when there are no messages for a specific user', async () => {
+  it('get a 404, when the user is not found in channel', async () => {
     await db.deleteFrom('sent_messages').execute();
     const { body } = await supertest(app)
       .get('/messages?username=random')
       .expect(404);
 
-      expect(body).toEqual({
-        "error": {
-          "message": "User Not Found",
-          "status": 404
-        }
-      });
+    expect(body).toEqual({
+      error: {
+        message: 'User Not Found',
+        status: 404,
+      },
+    });
   });
 
+  it('get a 404, when the user is not found in channel', async () => {
+    await db.deleteFrom('sent_messages').execute();
+    const { body } = await supertest(app)
+      .get('/messages?username=random')
+      .expect(404);
+
+    expect(body).toEqual({
+      error: {
+        message: 'User Not Found',
+        status: 404,
+      },
+    });
+  });
+
+  it('get a 400, when the username is not valid (more than 32 chars)', async () => {
+    await db.deleteFrom('sent_messages').execute();
+    await supertest(app)
+      .get('/messages?username=esesesesesesesesesesesesesesesese')
+      .expect(400);
+  });
 });
 
 describe('GET /messages?sprint=WD-1.1', () => {
@@ -144,7 +170,13 @@ describe('GET /messages?sprint=WD-1.1', () => {
     ]);
   });
 
-  
+  it('get 400 when sprint format is incorrect', async () => {
+    await supertest(app).get('/messages?sprint=WD-').expect(400);
+  });
+
+  it('get 404 when sprint is not found', async () => {
+    await supertest(app).get('/messages?sprint=WD-1.43').expect(404);
+  });
 });
 
 describe('POST', () => {
@@ -161,5 +193,51 @@ describe('POST', () => {
       .expect(201);
 
     expect(body).toEqual({ message: 'Message sent successfully' });
+  });
+
+  it('gets 400 because message was already sent', async () => {
+    const payload = {
+      username: 'mjansons',
+      sprintCode: 'WD-1.1',
+    };
+
+    const { body } = await supertest(app)
+      .post('/messages')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(400);
+
+    expect(body).toEqual({
+      error: {
+        message: 'User has already finished the sprint',
+        status: 400,
+      },
+    });
+  });
+
+  it('gets 404 because user was not found', async () => {
+    const payload = {
+      username: 'abc',
+      sprintCode: 'WD-1.3',
+    };
+
+    await supertest(app)
+      .post('/messages')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(404);
+  });
+
+  it('gets 404 because sprint was not found', async () => {
+    const payload = {
+      username: 'mjansons',
+      sprintCode: 'WD-9.2',
+    };
+
+    await supertest(app)
+      .post('/messages')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(404);
   });
 });

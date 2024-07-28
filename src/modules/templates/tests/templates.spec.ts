@@ -34,6 +34,19 @@ describe('GET /templates', () => {
       { id: 2, message: 'Congratulations!' },
     ]);
   });
+
+  it('get 404 when there are no templates', async () => {
+    await db.deleteFrom('templates').execute();
+
+    const { body } = await supertest(app).get('/templates').expect(404);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Resource Not Found',
+        status: 404,
+      },
+    });
+  });
 });
 
 describe('POST /templates', () => {
@@ -49,6 +62,25 @@ describe('POST /templates', () => {
       .expect(201);
 
     expect(body).toEqual({ id: 3, message: 'Yay3!' });
+  });
+
+  it('returns 400 when the message has already been used', async () => {
+    const payload = {
+      message: 'Yay, you did it!',
+    };
+
+    const { body } = await supertest(app)
+      .post('/templates')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(400);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Please provide a unique message!',
+        status: 400,
+      },
+    });
   });
 });
 

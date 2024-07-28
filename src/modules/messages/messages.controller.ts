@@ -93,7 +93,6 @@ export default (
         const templateObject = allTemplates[randomIndex];
 
         // update completed sprints in db
-
         if (
           !sprintRepository.updateCompletedSprint(
             sprintObject.id,

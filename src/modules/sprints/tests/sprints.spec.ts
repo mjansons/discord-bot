@@ -109,11 +109,10 @@ describe('POST /sprints', () => {
       },
     });
   });
-
 });
 
 describe('PATCH /sprints?sprint=WD-1.3', () => {
-  it('change the sprint title', async () => {
+  it('changes the sprint title', async () => {
     const payload = {
       newTitle: 'A New Sprint Title',
     };
@@ -131,7 +130,7 @@ describe('PATCH /sprints?sprint=WD-1.3', () => {
     });
   });
 
-  it('change the sprint code', async () => {
+  it('changes the sprint code', async () => {
     const payload = {
       newSprintCode: 'WD-2.1',
     };
@@ -149,6 +148,44 @@ describe('PATCH /sprints?sprint=WD-1.3', () => {
       title: 'Tests',
     });
   });
+
+  it('changes gets 400 when title already exists', async () => {
+    const payload = {
+      newTitle: 'Loops',
+    };
+
+    const { body } = await supertest(app)
+      .patch('/sprints?sprint=WD-1.2')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(400);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Please provide a unique New Sprint Title',
+        status: 400,
+      },
+    });
+  });
+
+  it('changes gets 400 when sprint code already exists', async () => {
+    const payload = {
+      newSprintCode: 'WD-1.1',
+    };
+
+    const { body } = await supertest(app)
+      .patch('/sprints?sprint=WD-1.2')
+      .send(payload)
+      .set('Content-Type', 'application/json')
+      .expect(400);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Please provide a unique New Sprint Code',
+        status: 400,
+      },
+    });
+  });
 });
 
 describe('DELETE /sprints?sprint=WD-1.3', () => {
@@ -158,5 +195,22 @@ describe('DELETE /sprints?sprint=WD-1.3', () => {
       .expect(200);
 
     expect(body).toEqual({ id: 1, sprintCode: 'WD-1.1', title: 'Loops' });
+  });
+
+  it('get 404 when sprint not found', async () => {
+    const { body } = await supertest(app)
+      .delete('/sprints?sprint=WD-1.9')
+      .expect(404);
+
+    expect(body).toEqual({
+      error: {
+        message: 'Sprint Not Found',
+        status: 404,
+      },
+    });
+  });
+
+  it('get 400 when sprint code is invalid', async () => {
+    await supertest(app).delete('/sprints?sprint=arfs').expect(400);
   });
 });

@@ -18,7 +18,7 @@ beforeEach(async () => {
   await createUsers([{ id: 1, username: 'mjansons' }]);
   await createTemplates([
     { id: 1, message: 'Yay, you did it!' },
-    { id: 2, message: 'Congratulations!' },
+    { id: 2, message: 'Congratulations!' }
   ]);
   await createSprints([
     { id: 1, sprint_code: 'WD-1.1', title: 'Loops' },
@@ -82,8 +82,8 @@ describe('GET /messages', () => {
     expect(body).toEqual({
       error: {
         message: 'Resource Not Found',
-        status: 404,
-      },
+        status: 404
+      }
     });
   });
 });

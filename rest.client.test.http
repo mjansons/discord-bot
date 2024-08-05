@@ -17,7 +17,6 @@ Content-Type: application/json
   "title": "Sprint Two"
 }
 
-
 ###
 post http://localhost:3000/templates
 // adds new template
